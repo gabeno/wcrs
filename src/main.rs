@@ -1,7 +1,8 @@
-use std::io::{BufRead, stdin};
+use std::io::stdin;
+
+use wcrs::count_lines;
 
 fn main() {
-    let input = stdin().lock();
-    let lines = input.lines().count();
+    let lines = count_lines(stdin().lock());
     println!("{lines} lines");
 }
