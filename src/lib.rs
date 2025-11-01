@@ -1,6 +1,11 @@
 use std::io::{BufRead, Result};
 
 pub fn count_lines(input: impl BufRead) -> Result<usize> {
+    // iterator version
+    // input
+    //     .lines()
+    //     .try_fold(0, |count, line| { line.map(|_| count + 1)})
+
     let mut count = 0;
     for line in input.lines() {
         line?;
