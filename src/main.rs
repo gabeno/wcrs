@@ -1,9 +1,20 @@
-use std::{io::stdin, process};
+use std::{env, fs::File, io::BufReader, process};
 
 use wcrs::count_lines;
 
 fn main() {
-    let lines = count_lines(stdin().lock());
+    let Some(path) = env::args().nth(1) else {
+        eprint!("Usage: count <FILE>");
+        process::exit(1);
+    };
+    let file = File::open(&path)
+        .map_err(|e| {
+            eprintln!("{e}");
+            process::exit(1);
+        })
+        .unwrap();
+    let file = BufReader::new(file);
+    let lines = count_lines(file);
     match lines {
         Ok(lines) => println!("{lines} lines"),
         Err(e) => {
