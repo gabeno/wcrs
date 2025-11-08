@@ -1,25 +1,18 @@
-use std::{env, fs::File, io::BufReader, process};
+use std::{
+    env,
+    fs::File,
+    io::{BufReader, Error, Result},
+};
 
 use wcrs::count_lines;
 
-fn main() {
-    let Some(path) = env::args().nth(1) else {
-        eprint!("Usage: count <FILE>");
-        process::exit(1);
-    };
-    let file = File::open(&path)
-        .map_err(|e| {
-            eprintln!("{e}");
-            process::exit(1);
-        })
-        .unwrap();
+fn main() -> Result<()> {
+    let path = env::args()
+        .nth(1)
+        .ok_or(Error::other("Usage: count <FILE>"))?;
+    let file = File::open(&path)?;
     let file = BufReader::new(file);
-    let lines = count_lines(file);
-    match lines {
-        Ok(lines) => println!("{lines} lines"),
-        Err(e) => {
-            eprintln!("{e}");
-            process::exit(1);
-        }
-    }
+    let lines = count_lines(file)?;
+    println!("{lines} lines");
+    Ok(())
 }
