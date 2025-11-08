@@ -1,9 +1,10 @@
 use std::{
     env,
     fs::File,
-    io::{BufReader, Error, Result},
+    io::{BufReader, Error},
 };
 
+use anyhow::Result;
 use wcrs::count_lines;
 
 fn main() -> Result<()> {
