@@ -1,7 +1,7 @@
-use std::{env, fs::File, io::BufReader};
+use std::env;
 
-use anyhow::{Context, Result, bail};
-use wcrs::count_lines;
+use anyhow::{Result, bail};
+use wcrs::count_lines_in_path;
 
 fn main() -> Result<()> {
     let args: Vec<_> = env::args().skip(1).collect();
@@ -9,10 +9,7 @@ fn main() -> Result<()> {
         bail!("Usage: wcrs <FILE>...");
     }
     for path in args {
-        let file = File::open(&path).with_context(|| path.clone())?;
-        let file = BufReader::new(file);
-        let lines = count_lines(file).with_context(|| path.clone())?;
-        println!("{path}: {lines} lines");
+        println!("{path}: {} lines", count_lines_in_path(&path)?);
     }
     Ok(())
 }

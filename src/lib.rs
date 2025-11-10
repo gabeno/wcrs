@@ -1,4 +1,9 @@
-use std::io::{BufRead, Result};
+use std::{
+    fs::File,
+    io::{BufRead, BufReader},
+};
+
+use anyhow::{Context, Result};
 
 pub fn count_lines(input: impl BufRead) -> Result<usize> {
     // iterator version
@@ -14,9 +19,15 @@ pub fn count_lines(input: impl BufRead) -> Result<usize> {
     Ok(count)
 }
 
+pub fn count_lines_in_path(path: &String) -> Result<usize> {
+    let file = File::open(path).with_context(|| path.clone())?;
+    let buf = BufReader::new(file);
+    count_lines(buf).with_context(|| path.clone())
+}
+
 #[cfg(test)]
 mod tests {
-    use std::io::{BufReader, Cursor, Error, Read, Result};
+    use std::io::{BufReader, Cursor, Error, Read, Result, Write};
 
     use super::*;
 
@@ -42,5 +53,15 @@ mod tests {
         let result = count_lines(reader);
 
         assert!(result.is_err(), "no error returned");
+    }
+
+    #[test]
+    fn count_lines_in_path_returns_number_of_lines_in_a_file() {
+        let p = String::from("foo.txt");
+        let mut f = File::create(&p).unwrap();
+        _ = f.write(b"1\n2\n3\n4").unwrap();
+        let lines = count_lines_in_path(&p).unwrap();
+
+        assert_eq!(lines, 4, "wrong lines count");
     }
 }
