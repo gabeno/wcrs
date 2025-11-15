@@ -5,16 +5,12 @@ use std::{
 
 use anyhow::{Context, Result};
 
-pub fn count_lines(input: impl BufRead) -> Result<usize> {
-    // iterator version
-    // input
-    //     .lines()
-    //     .try_fold(0, |count, line| { line.map(|_| count + 1)})
-
+pub fn count_lines(mut input: impl BufRead) -> Result<usize> {
     let mut count = 0;
-    for line in input.lines() {
-        line?;
+    let mut line = String::new();
+    while input.read_line(&mut line)? > 0 {
         count += 1;
+        line.clear();
     }
     Ok(count)
 }
@@ -25,10 +21,12 @@ pub fn count_lines_in_path(path: &String) -> Result<usize> {
     count_lines(buf).with_context(|| path.clone())
 }
 
-pub fn count_words(input: impl BufRead) -> Result<usize> {
+pub fn count_words(mut input: impl BufRead) -> Result<usize> {
     let mut count = 0;
-    for line in input.lines() {
-        count += line?.split_whitespace().count();
+    let mut line = String::new();
+    while input.read_line(&mut line)? > 0 {
+        count += line.split_whitespace().count();
+        line.clear();
     }
     Ok(count)
 }
@@ -75,9 +73,9 @@ mod tests {
 
     #[test]
     fn count_words_returns_number_of_words_in_input() {
-        let input = Cursor::new("word1 word2 word3");
+        let input = Cursor::new("word1 word2 word3\nword4 word5\n");
         let word_count = count_words(input).unwrap();
 
-        assert_eq!(word_count, 3, "wrong word count");
+        assert_eq!(word_count, 5, "wrong word count");
     }
 }
