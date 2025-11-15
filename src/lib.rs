@@ -25,6 +25,14 @@ pub fn count_lines_in_path(path: &String) -> Result<usize> {
     count_lines(buf).with_context(|| path.clone())
 }
 
+pub fn count_words(input: impl BufRead) -> Result<usize> {
+    let mut count = 0;
+    for line in input.lines() {
+        count += line?.split_whitespace().count();
+    }
+    Ok(count)
+}
+
 #[cfg(test)]
 mod tests {
     use std::io::{BufReader, Cursor, Error, Read, Result, Write};
@@ -63,5 +71,13 @@ mod tests {
         let lines = count_lines_in_path(&p).unwrap();
 
         assert_eq!(lines, 4, "wrong lines count");
+    }
+
+    #[test]
+    fn count_words_returns_number_of_words_in_input() {
+        let input = Cursor::new("word1 word2 word3");
+        let word_count = count_words(input).unwrap();
+
+        assert_eq!(word_count, 3, "wrong word count");
     }
 }
