@@ -9,7 +9,9 @@ fn main() -> Result<()> {
         bail!("Usage: wcrs <FILE>...");
     }
     for path in args {
-        println!("{path}: {} lines", count_lines_in_path(&path)?);
+        let counter = count_lines_in_path(&path)?;
+        println!("{path}: {} lines", counter.lines);
+        println!("{path}: {} words", counter.words);
     }
     Ok(())
 }

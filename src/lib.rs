@@ -5,30 +5,27 @@ use std::{
 
 use anyhow::{Context, Result};
 
-pub fn count_lines(mut input: impl BufRead) -> Result<usize> {
-    let mut count = 0;
+#[derive(Default)]
+pub struct Count {
+    pub lines: usize,
+    pub words: usize,
+}
+
+pub fn count(mut input: impl BufRead) -> Result<Count> {
+    let mut count = Count::default();
     let mut line = String::new();
     while input.read_line(&mut line)? > 0 {
-        count += 1;
+        count.lines += 1;
+        count.words += line.split_whitespace().count();
         line.clear();
     }
     Ok(count)
 }
 
-pub fn count_lines_in_path(path: &String) -> Result<usize> {
+pub fn count_lines_in_path(path: &String) -> Result<Count> {
     let file = File::open(path).with_context(|| path.clone())?;
     let buf = BufReader::new(file);
-    count_lines(buf).with_context(|| path.clone())
-}
-
-pub fn count_words(mut input: impl BufRead) -> Result<usize> {
-    let mut count = 0;
-    let mut line = String::new();
-    while input.read_line(&mut line)? > 0 {
-        count += line.split_whitespace().count();
-        line.clear();
-    }
-    Ok(count)
+    count(buf).with_context(|| path.clone())
 }
 
 #[cfg(test)]
@@ -48,17 +45,17 @@ mod tests {
     #[test]
     fn count_lines_returns_number_of_lines_in_input() {
         let input = Cursor::new("line 1\nline 2\n");
-        let lines = count_lines(input).unwrap();
+        let counter = count(input).unwrap();
 
-        assert_eq!(lines, 2, "wrong line count");
+        assert_eq!(counter.lines, 2, "wrong line count");
     }
 
     #[test]
     fn count_lines_returns_error_if_present() {
         let reader = BufReader::new(ErrorReader);
-        let result = count_lines(reader);
+        let counter = count(reader);
 
-        assert!(result.is_err(), "no error returned");
+        assert!(counter.is_err(), "no error returned");
     }
 
     #[test]
@@ -66,16 +63,16 @@ mod tests {
         let p = String::from("foo.txt");
         let mut f = File::create(&p).unwrap();
         _ = f.write(b"1\n2\n3\n4").unwrap();
-        let lines = count_lines_in_path(&p).unwrap();
+        let counter = count_lines_in_path(&p).unwrap();
 
-        assert_eq!(lines, 4, "wrong lines count");
+        assert_eq!(counter.lines, 4, "wrong lines count");
     }
 
     #[test]
     fn count_words_returns_number_of_words_in_input() {
         let input = Cursor::new("word1 word2 word3\nword4 word5\n");
-        let word_count = count_words(input).unwrap();
+        let counter = count(input).unwrap();
 
-        assert_eq!(word_count, 5, "wrong word count");
+        assert_eq!(counter.words, 5, "wrong word count");
     }
 }
