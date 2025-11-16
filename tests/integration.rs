@@ -17,6 +17,17 @@ fn binary_counts_lines_in_named_files() {
         .assert()
         .success()
         .stdout(predicate::str::contains(
-            "tests/data/lines.txt: 2 lines\ntests/data/lines.txt: 2 words\ntests/data/words.txt: 2 lines\ntests/data/words.txt: 14 words",
+            "tests/data/lines.txt: 2 lines\ntests/data/words.txt: 2 lines",
+        ));
+}
+
+#[test]
+fn binary_counts_words_with_flag() {
+    Command::new(cargo::cargo_bin!("wcrs"))
+        .args(&["-w", "tests/data/lines.txt", "tests/data/words.txt"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "tests/data/lines.txt: 2 words\ntests/data/words.txt: 14 words",
         ));
 }
