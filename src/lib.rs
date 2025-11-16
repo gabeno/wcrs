@@ -22,7 +22,7 @@ pub fn count(mut input: impl BufRead) -> Result<Count> {
     Ok(count)
 }
 
-pub fn count_lines_in_path(path: &String) -> Result<Count> {
+pub fn count_in_path(path: &String) -> Result<Count> {
     let file = File::open(path).with_context(|| path.clone())?;
     let buf = BufReader::new(file);
     count(buf).with_context(|| path.clone())
@@ -63,7 +63,7 @@ mod tests {
         let p = String::from("foo.txt");
         let mut f = File::create(&p).unwrap();
         _ = f.write(b"1\n2\n3\n4").unwrap();
-        let counter = count_lines_in_path(&p).unwrap();
+        let counter = count_in_path(&p).unwrap();
 
         assert_eq!(counter.lines, 4, "wrong lines count");
     }

@@ -1,7 +1,7 @@
 use std::env;
 
 use anyhow::{Result, bail};
-use wcrs::count_lines_in_path;
+use wcrs::count_in_path;
 
 fn main() -> Result<()> {
     let args: Vec<_> = env::args().skip(1).collect();
@@ -14,7 +14,7 @@ fn main() -> Result<()> {
             show_word_count = true;
             continue;
         }
-        let counter = count_lines_in_path(&path)?;
+        let counter = count_in_path(&path)?;
 
         if show_word_count {
             println!("{path}: {} words", counter.words);
